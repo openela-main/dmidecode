@@ -1,0 +1,35 @@
+From 02ff0488f7d7a0f7e69ff7141236cbc1392c3b4c Mon Sep 17 00:00:00 2001
+From: Jean Delvare <jdelvare@suse.de>
+Date: Fri, 30 Oct 2020 15:36:19 +0100
+Subject: [PATCH 2/2] dmidecode: Skip details of uninstalled memory modules
+
+If a memory slot is empty then by definition the fields containing
+the memory module details are irrelevant. Best case they are filled
+with "Unused" and "None", but in some cases they are even invalid
+because the manufacturer did not bother setting the fields to
+valid neutral values. So it is better to not print these fields
+at all, so as to not confuse the user.
+
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Signed-off-by: Lianbo Jiang <lijiang@redhat.com>
+---
+ dmidecode.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/dmidecode.c b/dmidecode.c
+index 0e480d3e337b..657a1341470b 100644
+--- a/dmidecode.c
++++ b/dmidecode.c
+@@ -4465,6 +4465,9 @@ static void dmi_decode(const struct dmi_header *h, u16 ver)
+ 				dmi_memory_device_type(data[0x12]));
+ 			dmi_memory_device_type_detail(WORD(data + 0x13));
+ 			if (h->length < 0x17) break;
++			/* If no module is present, the remaining fields are irrelevant */
++			if (WORD(data + 0x0C) == 0)
++				break;
+ 			dmi_memory_device_speed("Speed", WORD(data + 0x15));
+ 			if (h->length < 0x1B) break;
+ 			pr_attr("Manufacturer", "%s",
+-- 
+2.17.1
+
