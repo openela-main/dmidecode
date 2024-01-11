@@ -1,7 +1,7 @@
 Summary:        Tool to analyse BIOS DMI data
 Name:           dmidecode
 Version:        3.3
-Release:        4%{?dist}.1
+Release:        5%{?dist}
 Epoch:          1
 License:        GPLv2+
 Source0:        http://download.savannah.gnu.org/releases/%{name}/%{name}-%{version}.tar.xz
@@ -54,8 +54,8 @@ make %{?_smp_mflags} DESTDIR=%{buildroot} prefix=%{_prefix} install-bin install-
 %{_mandir}/man8/*
 
 %changelog
-* Fri Jun 09 2023 Lichen Liu <lichliu@redhat.com> - 1:3.3-4.1
-- Resolves: rhbz#2186859
+* Thu Jun 08 2023 Lichen Liu <lichliu@redhat.com> - 1:3.3-5
+- Resolves: rhbz#2186860
 
 * Wed Jan 26 2022 Coiby Xu <coxu@redhat.com> - 1:3.3-4
 - Resolves: rhbz#2042224
