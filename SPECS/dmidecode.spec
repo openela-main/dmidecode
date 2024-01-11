@@ -1,7 +1,7 @@
 Summary:        Tool to analyse BIOS DMI data
 Name:           dmidecode
-Version:        3.3
-Release:        7%{?dist}.1
+Version:        3.5
+Release:        1%{?dist}
 Epoch:          1
 License:        GPLv2+
 Source0:        https://download.savannah.gnu.org/releases/%{name}/%{name}-%{version}.tar.xz
@@ -9,15 +9,6 @@ URL:            https://www.nongnu.org/dmidecode/
 BuildRequires:  gcc make
 ExclusiveArch:  %{ix86} x86_64 ia64 aarch64
 
-Patch0:        0001-dmidecode-Add-new-system-slot-types-from-SMBIOS-spec.patch
-Patch1:        0002-dmidecode-Add-new-processor-characteristics-bits-from-SMBIOS-s.patch
-Patch2:        0003-dmidecode-Missing-comma-in-the-dmi_slot_type.patch
-Patch3:        0004-dmidecode-Skip-details-of-uninstalled-memory-modules.patch
-Patch4:        0005-dmidecode-Add-new-processor-upgrades-from-SMBIOS-spec-3.4.0.patch
-Patch5:        0006-dmidedecode-Add-new-memory-device-types-from-SMBIOS-spec-3.4.0.patch
-Patch6:        0007-dmidecode-Split-table-fetching-from-decoding.patch
-Patch7:        0008-dmidecode-Write-the-whole-dump-file-at-once.patch
-Patch8:        0009-dmidecode-Do-not-let-dump-bin-overwrite-an-existing-.patch
 %description
 dmidecode reports information about x86 & ia64 hardware as described in the
 system BIOS according to the SMBIOS/DMI standard. This information
@@ -31,15 +22,6 @@ I/O ports (e.g. serial, parallel, USB).
 
 %prep
 %setup -q
-%patch0 -p1
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
-%patch7 -p1
-%patch8 -p1
 
 %build
 %make_build CFLAGS="%{optflags}" LDFLAGS="%{__global_ldflags}"
@@ -59,8 +41,9 @@ I/O ports (e.g. serial, parallel, USB).
 %{_mandir}/man8/*
 
 %changelog
-* Tue Jun 06 2023 Lichen Liu <lichliu@redhat.com> - 1:3.3-7.1
-- Resolves: rhbz#2186857
+* Fri May 05 2023 Lichen Liuu <lichliu@redhat.com> - 1:3.5-1
+- updated to upstream v3.5
+- Resolves: rhbz#2186858
 
 * Wed Jan 05 2022 Coiby Xu <coxu@redhat.com> - 1:3.3-7
 - Resolves: rhbz#2029784
