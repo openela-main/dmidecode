@@ -1,17 +1,14 @@
 Summary:        Tool to analyse BIOS DMI data
 Name:           dmidecode
-Version:        3.5
-Release:        3%{?dist}
+Version:        3.6
+Release:        1%{?dist}
 Epoch:          1
 License:        GPLv2+
 Source0:        https://download.savannah.gnu.org/releases/%{name}/%{name}-%{version}.tar.xz
 URL:            https://www.nongnu.org/dmidecode/
 BuildRequires:  gcc make
+BuildRequires:  pkgconfig(bash-completion)
 ExclusiveArch:  %{ix86} x86_64 ia64 aarch64
-
-Patch0:         0001-dmidecode-Add-processor-support-from-SMBIOS-3.6.0.patch
-Patch1:         0002-Consistently-use-read_file-when-reading-from-a-dump-.patch
-Patch2:         0003-dmidecode-Expand-list-of-recognized-CPU-sockets.patch
 
 %description
 dmidecode reports information about x86 & ia64 hardware as described in the
@@ -26,9 +23,6 @@ I/O ports (e.g. serial, parallel, USB).
 
 %prep
 %setup -q
-%patch0 -p1
-%patch1 -p1
-%patch2 -p1
 
 %build
 %make_build CFLAGS="%{optflags}" LDFLAGS="%{__global_ldflags}"
@@ -44,10 +38,17 @@ I/O ports (e.g. serial, parallel, USB).
 %{_sbindir}/vpddecode
 %{_sbindir}/ownership
 %{_sbindir}/biosdecode
+%{_datadir}/bash-completion/completions/vpddecode
+%{_datadir}/bash-completion/completions/ownership
+%{_datadir}/bash-completion/completions/biosdecode
 %endif
 %{_mandir}/man8/*
+%{_datadir}/bash-completion/completions/%{name}
 
 %changelog
+* Mon Aug 05 2024 Lichen Liu <lichliu@redhat.com> - 1:3.6-1
+- updated to upstream v3.6
+
 * Tue Jan 09 2024 Lichen Liu <lichliu@redhat.com> - 1:3.5-3
 - Expanding the list of CPU sockets to match the list specified in SMBIOS 3.7.0
 
