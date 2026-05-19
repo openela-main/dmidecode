@@ -1,0 +1,51 @@
+From c8daa70208e0ef89a0478f3abda2b55d4d0c8d3d Mon Sep 17 00:00:00 2001
+From: Jessie Chen <ychen39@lenovo.com>
+Date: Tue, 4 Feb 2025 14:11:43 +0100
+Subject: [PATCH 10/45] dmidecode: Update the sockets in Processor Update
+ section
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+When running the dmidecode command to check SMBIOS Processor Information
+(type 4), the "Upgrade" for CPU in the result shows "<OUT OF SPEC>",
+because the latest version of the dmidecode source code doesn't cover
+the sockets beyond 50h in the Processor Information — Processor Upgrade
+section of SMBIOS version 3.8. So, add the parts of the SMBIOS 3.8
+Processor Information — Processor Upgrade section beyond socket 50h to
+the end of "dmi_processor_upgrade" in the source code, and update the
+conditional statements to include the current last value, 57h.
+
+Signed-off-by: Jessie Chen <ychen39@lenovo.com>
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+---
+ dmidecode.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/dmidecode.c b/dmidecode.c
+index 547cb48..7a3a30f 100644
+--- a/dmidecode.c
++++ b/dmidecode.c
+@@ -1462,10 +1462,17 @@ static const char *dmi_processor_upgrade(u8 code)
+ 		"Socket BGA1190",
+ 		"Socket BGA4129",
+ 		"Socket LGA4710",
+-		"Socket LGA7529" /* 0x50 */
++		"Socket LGA7529",
++		"Socket BGA1964",
++		"Socket BGA1792",
++		"Socket BGA2049",
++		"Socket BGA2551",
++		"Socket LGA1851",
++		"Socket BGA2114",
++		"Socket BGA2833" /* 0x57 */
+ 	};
+ 
+-	if (code >= 0x01 && code <= 0x50)
++	if (code >= 0x01 && code <= 0x57)
+ 		return upgrade[code - 0x01];
+ 	return out_of_spec;
+ }
+-- 
+2.47.0
+

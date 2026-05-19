@@ -1,0 +1,41 @@
+From ea4c9f24f6dfc2ab3620475f28ef2b11c428b6ee Mon Sep 17 00:00:00 2001
+From: Jean Delvare <jdelvare@suse.de>
+Date: Mon, 12 May 2025 17:50:39 +0200
+Subject: [PATCH 29/45] dmidecode: Fix missing end of list in type 0
+
+If pr_list_start() was called, pr_list_end() must be called too. The
+bug would cause pr_list_end() not to be called for type 0 records of
+length 18 or 19. This doesn't really matter for now because this is
+a no-op for plain text output, but it would break the upcoming JSON
+output.
+
+Bug found while reviewing Jiri Hnidek's work.
+
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+---
+ dmidecode.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/dmidecode.c b/dmidecode.c
+index 6a14f99..00d7343 100644
+--- a/dmidecode.c
++++ b/dmidecode.c
+@@ -4496,11 +4496,11 @@ static void dmi_decode(const struct dmi_header *h, u16 ver)
+ 			dmi_bios_rom_size(data[0x09], h->length < 0x1A ? 16 : WORD(data + 0x18));
+ 			pr_list_start("Characteristics", NULL);
+ 			dmi_bios_characteristics(QWORD(data + 0x0A));
++			if (h->length >= 0x13)
++				dmi_bios_characteristics_x1(data[0x12]);
++			if (h->length >= 0x14)
++				dmi_bios_characteristics_x2(data[0x13]);
+ 			pr_list_end();
+-			if (h->length < 0x13) break;
+-			dmi_bios_characteristics_x1(data[0x12]);
+-			if (h->length < 0x14) break;
+-			dmi_bios_characteristics_x2(data[0x13]);
+ 			if (h->length < 0x18) break;
+ 			if (data[0x14] != 0xFF && data[0x15] != 0xFF)
+ 				pr_attr("BIOS Revision", "%u.%u",
+-- 
+2.47.0
+

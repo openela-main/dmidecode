@@ -1,0 +1,45 @@
+From e637a26990fae8d365768a5592fe6dc581d22ec9 Mon Sep 17 00:00:00 2001
+From: Jessie Chen <ychen39@lenovo.com>
+Date: Thu, 13 Feb 2025 17:05:19 +0100
+Subject: [PATCH 11/45] dmidecode: Update info in Processor Family field
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+When running the dmidecode command to check SMBIOS Processor Information
+(type 4), the "Family" for CPU in the result shows "<OUT OF SPEC>",
+because the latest version of the dmidecode source code doesn't cover
+the values for the Processor Information beyond 300h in the
+Processor Information — Processor Family section of SMBIOS version 3.8.
+So, add the parts of the SMBIOS 3.8 Processor Information — Processor Family
+section beyond value 300h to the end of "0x271" in the source code.
+
+Signed-off-by: Jessie Chen <ychen39@lenovo.com>
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+---
+ dmidecode.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/dmidecode.c b/dmidecode.c
+index 7a3a30f..1194a9c 100644
+--- a/dmidecode.c
++++ b/dmidecode.c
+@@ -1010,6 +1010,15 @@ static const char *dmi_processor_family(const struct dmi_header *h, u16 ver)
+ 		{ 0x26F, "Multi-Core Loongson 3B 5xxx" },
+ 		{ 0x270, "Multi-Core Loongson 3C 5xxx" },
+ 		{ 0x271, "Multi-Core Loongson 3D 5xxx" },
++
++		{ 0x300, "Core 3" },
++		{ 0x301, "Core 5" },
++		{ 0x302, "Core 7" },
++		{ 0x303, "Core 9" },
++		{ 0x304, "Core Ultra 3" },
++		{ 0x305, "Core Ultra 5" },
++		{ 0x306, "Core Ultra 7" },
++		{ 0x307, "Core Ultra 9" },
+ 	};
+ 	/*
+ 	 * Note to developers: when adding entries to this list, check if
+-- 
+2.47.0
+

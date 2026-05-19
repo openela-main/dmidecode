@@ -1,0 +1,38 @@
+From b125744b65641fbb2fad7237305606d21b70a2c2 Mon Sep 17 00:00:00 2001
+From: Jean Delvare <jdelvare@suse.de>
+Date: Mon, 16 Jun 2025 11:36:47 +0200
+Subject: [PATCH 36/45] dmioem: Fix HPE type 203 PCI device class and sub-class
+
+Casting the PCI device class to a signed 8-bit type before extending
+it to a 16-bit type causes the sign bit to replicate to the whole
+upper byte. For example, a sub-class value of 0x80 ends up being
+displayed as 0xFF80.
+
+It doesn't make sense to display an 8-bit value using a 16-bit format
+in the first place anyway. Simplify the code and directly display the
+8-bit PCI device class and sub-class values as-is.
+
+Fixes: 3e86b5d3a228 ("dmioem: Decode HPE OEM Record 203")
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+---
+ dmioem.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/dmioem.c b/dmioem.c
+index 096cd0c..dea752b 100644
+--- a/dmioem.c
++++ b/dmioem.c
+@@ -1297,8 +1297,8 @@ static int dmi_decode_hp(const struct dmi_header *h)
+ 				dmi_hp_203_pciinfo("PCI Device ID", WORD(data + 0x0A));
+ 				dmi_hp_203_pciinfo("PCI Sub Vendor ID", WORD(data + 0x0C));
+ 				dmi_hp_203_pciinfo("PCI Sub Device ID", WORD(data + 0x0E));
+-				dmi_hp_203_pciinfo("PCI Class Code", (char)data[0x10]);
+-				dmi_hp_203_pciinfo("PCI Sub Class Code", (char)data[0x11]);
++				pr_attr("PCI Class Code", "0x%02x", data[0x10]);
++				pr_attr("PCI Sub Class Code", "0x%02x", data[0x11]);
+ 			}
+ 			dmi_hp_203_assoc_hndl("Parent Handle", WORD(data + 0x12));
+ 			pr_attr("Flags", "0x%04X", WORD(data + 0x14));
+-- 
+2.47.0
+

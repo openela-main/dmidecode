@@ -1,0 +1,30 @@
+From 588bdd6bfc6809088f5e2bc25f3962c4878a3f88 Mon Sep 17 00:00:00 2001
+From: Jerry Hoemann <jerry.hoemann@hpe.com>
+Date: Tue, 15 Apr 2025 11:02:52 +0200
+Subject: [PATCH 15/45] dmioem: Correct HPE OEM Type 216 format 14
+
+Decode of Version Data Format 0E is five bytes, not four.
+
+Fixes: 9d2bbd5db427b063da ("dmioem: Decode HPE OEM Record 216")
+Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+---
+ dmioem.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/dmioem.c b/dmioem.c
+index 453e0ad..036e285 100644
+--- a/dmioem.c
++++ b/dmioem.c
+@@ -583,7 +583,7 @@ static void dmi_hp_216_version(u8 format, u8 *data)
+ 		pr_attr(name, "%d", data[0]);
+ 		break;
+ 	case 14:
+-		pr_attr(name, "%d.%d.%d.%d", data[0], data[1], data[2], data[3]);
++		pr_attr(name, "%d.%d.%d.%d", data[0], data[1], data[2], WORD(data+3));
+ 		break;
+ 	case 15:
+ 		pr_attr(name, "%d.%d.%d.%d (%.2d/%.2d/%d)",
+-- 
+2.47.0
+

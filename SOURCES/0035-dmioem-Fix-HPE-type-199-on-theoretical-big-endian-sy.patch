@@ -1,0 +1,50 @@
+From d9a917793dc2a5e4e625c27e75b1783ce992f471 Mon Sep 17 00:00:00 2001
+From: Jean Delvare <jdelvare@suse.de>
+Date: Mon, 16 Jun 2025 11:36:43 +0200
+Subject: [PATCH 35/45] dmioem: Fix HPE type 199 on theoretical big-endian
+ systems
+
+dmi_print_cpuid() expects a pointer to raw data to interpret as a
+CPUID, not to a native integer. If we call DWORD() on the data before
+calling dmi_print_cpuid(), and once again in dmi_print_cpuid(), we
+end up swapping the bytes twice if running on a big-endian system,
+which causes completely wrong CPU ID data to be displayed.
+
+The bug does not happen on x86 because DWORD() is essentially
+idempotent on this architecture.
+
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+---
+ dmioem.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/dmioem.c b/dmioem.c
+index 0a01919..096cd0c 100644
+--- a/dmioem.c
++++ b/dmioem.c
+@@ -1131,14 +1131,19 @@ static int dmi_decode_hp(const struct dmi_header *h)
+ 			pr_handle_name("%s ProLiant CPU Microcode Patch Support Info", company);
+ 
+ 			for (ptr = 0x4; ptr + 12 <= h->length; ptr += 12) {
+-				u32 cpuid = DWORD(data + ptr + 2 * 4);
++				u8 cpuid[4];
+ 				u32 date;
+ 
++				memcpy(cpuid, data + ptr + 2 * 4, 4);
+ 				/* AMD omits BaseFamily. Reconstruction valid on family >= 15. */
+ 				if (cpuid_type == cpuid_x86_amd)
+-					cpuid = ((cpuid & 0xfff00) << 8) | 0x0f00 | (cpuid & 0xff);
++				{
++					cpuid[3] = cpuid[2] & 0x0f;
++					cpuid[2] = cpuid[1];
++					cpuid[1] = 0x0f;
++				}
+ 
+-				dmi_print_cpuid(pr_attr, "CPU ID", cpuid_type, (u8 *) &cpuid);
++				dmi_print_cpuid(pr_attr, "CPU ID", cpuid_type, cpuid);
+ 
+ 				date = DWORD(data + ptr + 4);
+ 				pr_subattr("Date", "%04x-%02x-%02x",
+-- 
+2.47.0
+

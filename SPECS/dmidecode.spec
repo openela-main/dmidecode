@@ -1,10 +1,55 @@
 Summary:        Tool to analyse BIOS DMI data
 Name:           dmidecode
 Version:        3.6
-Release:        1%{?dist}
+Release:        2%{?dist}
 Epoch:          1
 License:        GPLv2+
 Source0:        https://download.savannah.gnu.org/releases/%{name}/%{name}-%{version}.tar.xz
+Patch00:	0001-dmioem-Update-HPE-OEM-Type-238.patch
+Patch01:	0002-dmioem-Decode-Dell-specific-DMI-type-218.patch
+Patch02:	0003-dmioem-Decode-Dell-specific-DMI-type-177.patch
+Patch03:	0004-dmioem-Update-HPE-OEM-Type-203.patch
+Patch04:	0005-dmioem-Update-HPE-OEM-Type-224.patch
+Patch05:	0006-dmidecode-Move-out_of_spec-into-the-common-header.patch
+Patch06:	0007-dmioem-Decode-Dell-specific-DMI-type-212.patch
+Patch07:	0008-dmioem-Update-HPE-OEM-Type-216.patch
+Patch08:	0009-dmioem-Decode-Dell-specific-DMI-type-178.patch
+Patch09:	0010-dmidecode-Update-the-sockets-in-Processor-Update-sec.patch
+Patch10:	0011-dmidecode-Update-info-in-Processor-Family-field.patch
+Patch11:	0012-dmidecode.8-Fix-groff-error.patch
+Patch12:	0013-Fix-the-forward-declaration-of-dmi_print_memory_size.patch
+Patch13:	0014-dmioem-Improve-code-portability-variable-declaration.patch
+Patch14:	0015-dmioem-Correct-HPE-OEM-Type-216-format-14.patch
+Patch15:	0016-dmioem-Correct-HPE-OEM-Type-216-format-18.patch
+Patch16:	0017-dmioem-Update-HPE-OEM-Type-216.patch
+Patch17:	0018-dmioem-Update-HPE-OEM-Type-245.patch
+Patch18:	0019-dmidecode-Use-binary-unit-prefixes.patch
+Patch19:	0020-dmidecode-Mark-SMBIOS-3.7.1-as-supported.patch
+Patch20:	0021-dmidecode-Update-copyright-year-to-2025.patch
+Patch21:	0022-Fix-unit-of-starting-and-ending-addresses.patch
+Patch22:	0023-Stop-open-coding-the-u64-type.patch
+Patch23:	0024-Get-rid-of-u64_range.patch
+Patch24:	0025-biosdecode-Update-copyright-year-to-2025.patch
+Patch25:	0026-dmioem-Support-42-byte-HPE-type-242-records.patch
+Patch26:	0027-dmioem-Display-drive-capacity-in-power-of-10-units.patch
+Patch27:	0028-dmioem-Spell-ProLiant-consistently.patch
+Patch28:	0029-dmidecode-Fix-missing-end-of-list-in-type-0.patch
+Patch29:	0030-dmioem-Add-type-HPE-Gen-12.patch
+Patch30:	0031-dmioem-Decode-HPE-OEM-Type-193.patch
+Patch31:	0032-Rename-variable-div.patch
+Patch32:	0033-dmidecode-Expose-memory-utility-functions.patch
+Patch33:	0034-dmioem-Decode-HPE-OEM-Type-202.patch
+Patch34:	0035-dmioem-Fix-HPE-type-199-on-theoretical-big-endian-sy.patch
+Patch35:	0036-dmioem-Fix-HPE-type-203-PCI-device-class-and-sub-cla.patch
+Patch36:	0037-dmioem-Drop-function-dmi_hp_203_pciinfo.patch
+Patch37:	0038-dmioem-Decode-HPE-OEM-Type-232.patch
+Patch38:	0039-dmidecode-Rename-BIOS-to-Firmware.patch
+Patch39:	0040-dmidecode.8-Clarify-what-bios-and-firmware-keywords-.patch
+Patch40:	0041-dmidecode-Add-processor-family-Xeon-D.patch
+Patch41:	0042-dmidecode-Deprecate-the-processor-voltage-field.patch
+Patch42:	0043-dmidecode-Rework-the-decoding-of-the-arm64-SoC-ID.patch
+Patch43:	0044-dmidecode-Mark-SMBIOS-3.8.0-as-supported.patch
+Patch44:	0045-dmioem-Decode-HPE-OEM-Type-244.patch
 URL:            https://www.nongnu.org/dmidecode/
 BuildRequires:  gcc make
 BuildRequires:  pkgconfig(bash-completion)
@@ -22,7 +67,7 @@ slots (e.g. AGP, PCI, ISA) and memory module slots, and the list of
 I/O ports (e.g. serial, parallel, USB).
 
 %prep
-%setup -q
+%autosetup -p1
 
 %build
 %make_build CFLAGS="%{optflags}" LDFLAGS="%{__global_ldflags}"
@@ -46,6 +91,10 @@ I/O ports (e.g. serial, parallel, USB).
 %{_datadir}/bash-completion/completions/%{name}
 
 %changelog
+* Wed Oct 15 2025 Lichen Liu <lichliu@redhat.com> - 1:3.6-2
+- update to upstream fa268715
+  Resolves: RHEL-97702
+
 * Mon Aug 05 2024 Lichen Liu <lichliu@redhat.com> - 1:3.6-1
 - updated to upstream v3.6
 

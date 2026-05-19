@@ -1,0 +1,37 @@
+From b70f6ee0f2e879deebc630da20d27d350407889e Mon Sep 17 00:00:00 2001
+From: Jerry Hoemann <jerry.hoemann@hpe.com>
+Date: Tue, 3 Sep 2024 17:04:37 +0200
+Subject: [PATCH 08/45] dmioem: Update HPE OEM Type 216
+
+Update enumerated firmware types.
+
+Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+---
+ dmioem.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/dmioem.c b/dmioem.c
+index fb80506..964f287 100644
+--- a/dmioem.c
++++ b/dmioem.c
+@@ -479,12 +479,15 @@ static void dmi_hp_216_fw_type(u16 code)
+ 		"Intel SATA VROC",
+ 		"Intel SPS Firmware",
+ 		"Secondary System Programmable Logic Device",
+-		"CPU MEZZ Programmable Logic Device", /* 0x37 */
++		"CPU Mezzanine Board CPLD", /* 0x37 */
+ 		"Intel Artic Sound -M Accelerator Models Firmware",
+ 		"Ampere System Control Processor (SCP - PMPro+SMPro)",
+ 		"Intel CFR information", /* 0x3A */
+ 		"OCP cards",
+ 		"DC-SCM CPLD",
++		"Power Distribution Board CPLD",
++		"PCIe Switch Board CPLD",
++		"Sideband Board CPLD",
+ 	};
+ 
+ 	if (code < ARRAY_SIZE(type))
+-- 
+2.47.0
+

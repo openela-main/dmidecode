@@ -1,0 +1,38 @@
+From b2870c5da3528d88e27f7669acb1fcf9469c4a37 Mon Sep 17 00:00:00 2001
+From: Jean Delvare <jdelvare@suse.de>
+Date: Mon, 12 May 2025 17:50:28 +0200
+Subject: [PATCH 26/45] dmioem: Support 42-byte HPE type 242 records
+
+While most Gen10 and later HPE systems have type 242 records of size
+44 bytes or 62 bytes, a few have shorter type 242 records of 42
+bytes. Don't skip them and decode everything we can.
+
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+---
+ dmioem.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/dmioem.c b/dmioem.c
+index f218aa4..d08ae69 100644
+--- a/dmioem.c
++++ b/dmioem.c
+@@ -1673,7 +1673,7 @@ static int dmi_decode_hp(const struct dmi_header *h)
+ 			 */
+ 			if (gen < G10) return 0;
+ 			pr_handle_name("%s ProLiant Hard Drive Inventory Record", company);
+-			if (h->length < 0x2C) break;
++			if (h->length < 0x2A) break;
+ 			if (!(opt.flags & FLAG_QUIET))
+ 				pr_attr("Associated Handle", "0x%04X", WORD(data + 0x4));
+ 			dmi_hp_242_hdd_type(data[0x06]);
+@@ -1697,6 +1697,7 @@ static int dmi_decode_hp(const struct dmi_header *h)
+ 			pr_attr("Serial Number", dmi_string(h, data[0x27]));
+ 			pr_attr("Model Number", dmi_string(h, data[0x28]));
+ 			pr_attr("Firmware Revision", dmi_string(h, data[0x29]));
++			if (h->length < 0x2C) break;
+ 			pr_attr("Location", dmi_string(h, data[0x2A]));
+ 			feat = data[0x2B];
+ 			pr_attr("Encryption Status", "%s", (feat == 0) ? "Not Encrypted" :
+-- 
+2.47.0
+
