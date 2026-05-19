@@ -1,0 +1,28 @@
+From b0d99f10627728e8c9be40c335cbe6b47223fbf7 Mon Sep 17 00:00:00 2001
+From: Jean Delvare <jdelvare@suse.de>
+Date: Tue, 23 Sep 2025 13:42:17 +0200
+Subject: [PATCH 41/45] dmidecode: Add processor family "Xeon D"
+
+SMBIOS specification version 3.8.0 added one more processor family:
+Intel Xeon D, with code D0h.
+
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+---
+ dmidecode.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/dmidecode.c b/dmidecode.c
+index 5298123..a6cd97e 100644
+--- a/dmidecode.c
++++ b/dmidecode.c
+@@ -962,6 +962,7 @@ static const char *dmi_processor_family(const struct dmi_header *h, u16 ver)
+ 		{ 0xCD, "Core i5" },
+ 		{ 0xCE, "Core i3" },
+ 		{ 0xCF, "Core i9" },
++		{ 0xD0, "Xeon D" },
+ 
+ 		{ 0xD2, "C7-M" },
+ 		{ 0xD3, "C7-D" },
+-- 
+2.47.0
+

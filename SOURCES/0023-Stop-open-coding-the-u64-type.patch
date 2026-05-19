@@ -1,0 +1,383 @@
+From 2fa4ab1a1d37303b81e701d7ed08ae70965ab96c Mon Sep 17 00:00:00 2001
+From: Jean Delvare <jdelvare@suse.de>
+Date: Thu, 24 Apr 2025 11:41:52 +0200
+Subject: [PATCH 23/45] Stop open-coding the u64 type
+
+Any C99-compliant C compiler should offer the long long int variable
+type to store 64-bit values. Stop implementing this as a struct.
+
+This allows simplifying the code a little, while making the binary
+slightly smaller and faster.
+
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+---
+ biosdecode.c |  8 ++---
+ dmidecode.c  | 84 +++++++++++++++++++++-------------------------------
+ dmioem.c     | 13 ++++----
+ types.h      | 29 ++----------------
+ util.c       | 12 +-------
+ 5 files changed, 47 insertions(+), 99 deletions(-)
+
+diff --git a/biosdecode.c b/biosdecode.c
+index 99a27fe..fb393da 100644
+--- a/biosdecode.c
++++ b/biosdecode.c
+@@ -111,8 +111,8 @@ static int smbios3_decode(const u8 *p, size_t len)
+ 		p[0x07], p[0x08], p[0x09]);
+ 	printf("\tStructure Table Maximum Length: %u bytes\n",
+ 		DWORD(p + 0x0C));
+-	printf("\tStructure Table 64-bit Address: 0x%08X%08X\n",
+-		QWORD(p + 0x10).h, QWORD(p + 0x10).l);
++	printf("\tStructure Table 64-bit Address: 0x%016llX\n",
++		QWORD(p + 0x10));
+ 
+ 	return 1;
+ }
+@@ -284,8 +284,8 @@ static int acpi_decode(const u8 *p, size_t len)
+ 
+ 	if (DWORD(p + 20) < 32) return 1;
+ 
+-	printf("\tXSD Table 64-bit Address: 0x%08X%08X\n",
+-		QWORD(p + 24).h, QWORD(p + 24).l);
++	printf("\tXSD Table 64-bit Address: 0x%016llX\n",
++		QWORD(p + 24));
+ 
+ 	return 1;
+ }
+diff --git a/dmidecode.c b/dmidecode.c
+index 882e480..1acbefa 100644
+--- a/dmidecode.c
++++ b/dmidecode.c
+@@ -288,13 +288,13 @@ void dmi_print_memory_size(const char *attr, u64 code, int shift)
+ 	 * MiB, KiB and B. In practice, it is expected that only one or two
+ 	 * (consecutive) of these will be non-zero.
+ 	 */
+-	split[0] = code.l & 0x3FFUL;
+-	split[1] = (code.l >> 10) & 0x3FFUL;
+-	split[2] = (code.l >> 20) & 0x3FFUL;
+-	split[3] = ((code.h << 2) & 0x3FCUL) | (code.l >> 30);
+-	split[4] = (code.h >> 8) & 0x3FFUL;
+-	split[5] = (code.h >> 18) & 0x3FFUL;
+-	split[6] = code.h >> 28;
++	split[0] = code & 0x3FFULL;
++	split[1] = (code >> 10) & 0x3FFULL;
++	split[2] = (code >> 20) & 0x3FFULL;
++	split[3] = (code >> 30) & 0x3FFULL;
++	split[4] = (code >> 40) & 0x3FFULL;
++	split[5] = (code >> 50) & 0x3FFULL;
++	split[6] = (code >> 60) & 0x3FFULL;
+ 
+ 	/*
+ 	 * Now we find the highest unit with a non-zero value. If the following
+@@ -346,8 +346,7 @@ static void dmi_bios_rom_size(u8 code1, u16 code2)
+ 
+ 	if (code1 != 0xFF)
+ 	{
+-		u64 s = { .l = (code1 + 1) << 6 };
+-		dmi_print_memory_size("ROM Size", s, 1);
++		dmi_print_memory_size("ROM Size", (u64)(code1 + 1) << 6, 1);
+ 	}
+ 	else
+ 		pr_attr("ROM Size", "%u %s", code2 & 0x3FFF, unit[code2 >> 14]);
+@@ -392,14 +391,14 @@ static void dmi_bios_characteristics(u64 code)
+ 	/*
+ 	 * This isn't very clear what this bit is supposed to mean
+ 	 */
+-	if (code.l & (1 << 3))
++	if (code & (1ULL << 3))
+ 	{
+ 		pr_list_item("%s", characteristics[0]);
+ 		return;
+ 	}
+ 
+ 	for (i = 4; i <= 31; i++)
+-		if (code.l & (1 << i))
++		if (code & (1ULL << i))
+ 			pr_list_item("%s", characteristics[i - 3]);
+ }
+ 
+@@ -1780,14 +1779,12 @@ static void dmi_cache_size_2(const char *attr, u32 code)
+ 
+ 	if (code & 0x80000000)
+ 	{
+-		code &= 0x7FFFFFFFLU;
+-		size.l = code << 6;
+-		size.h = code >> 26;
++		code &= 0x7FFFFFFFULL;
++		size = (u64)code << 6;
+ 	}
+ 	else
+ 	{
+-		size.l = code;
+-		size.h = 0;
++		size = code;
+ 	}
+ 
+ 	/* Use a more convenient unit for large cache size */
+@@ -2767,9 +2764,9 @@ static void dmi_memory_device_size(u16 code)
+ 		pr_attr("Size", "Unknown");
+ 	else
+ 	{
+-		u64 s = { .l = code & 0x7FFF };
++		u64 s = (u64)code & 0x7FFFULL;
+ 		if (!(code & 0x8000))
+-			s.l <<= 10;
++			s <<= 10;
+ 		dmi_print_memory_size("Size", s, 1);
+ 	}
+ }
+@@ -3010,9 +3007,9 @@ static void dmi_memory_size(const char *attr, u64 code)
+ {
+ 	/* 7.18.12 */
+ 	/* 7.18.13 */
+-	if (code.h == 0xFFFFFFFF && code.l == 0xFFFFFFFF)
++	if (code == ~0ULL)
+ 		pr_attr(attr, "Unknown");
+-	else if (code.h == 0x0 && code.l == 0x0)
++	else if (code == 0ULL)
+ 		pr_attr(attr, "None");
+ 	else
+ 		dmi_print_memory_size(attr, code, 0);
+@@ -3142,18 +3139,12 @@ static void dmi_mapped_address_size(u32 code)
+ 	if (code == 0)
+ 		pr_attr("Range Size", "Invalid");
+ 	else
+-	{
+-		u64 size;
+-
+-		size.h = 0;
+-		size.l = code;
+-		dmi_print_memory_size("Range Size", size, 1);
+-	}
++		dmi_print_memory_size("Range Size", (u64)code, 1);
+ }
+ 
+ static void dmi_mapped_address_extended_size(u64 start, u64 end)
+ {
+-	if (start.h == end.h && start.l == end.l)
++	if (start == end)
+ 		pr_attr("Range Size", "Invalid");
+ 	else
+ 		dmi_print_memory_size("Range Size", u64_range(start, end), 0);
+@@ -3581,10 +3572,10 @@ static const char *dmi_system_boot_status(u8 code)
+ 
+ static void dmi_64bit_memory_error_address(const char *attr, u64 code)
+ {
+-	if (code.h == 0x80000000 && code.l == 0x00000000)
++	if (code == 0x8000000000000000ULL)
+ 		pr_attr(attr, "Unknown");
+ 	else
+-		pr_attr(attr, "0x%08X%08X", code.h, code.l);
++		pr_attr(attr, "0x%016llX", code);
+ }
+ 
+ /*
+@@ -3718,9 +3709,9 @@ static void dmi_ipmi_base_address(u8 type, const u8 *p, u8 lsb)
+ 	else
+ 	{
+ 		u64 address = QWORD(p);
+-		pr_attr("Base Address", "0x%08X%08X (%s)",
+-			address.h, (address.l & ~1) | lsb,
+-			address.l & 1 ? "I/O" : "Memory-mapped");
++		pr_attr("Base Address", "0x%016llX (%s)",
++			(address & ~1ULL) | lsb,
++			(address & 1ULL) ? "I/O" : "Memory-mapped");
+ 	}
+ }
+ 
+@@ -4389,14 +4380,14 @@ static void dmi_tpm_characteristics(u64 code)
+ 	/*
+ 	 * This isn't very clear what this bit is supposed to mean
+ 	 */
+-	if (code.l & (1 << 2))
++	if (code & (1ULL << 2))
+ 	{
+ 		pr_list_item("%s", characteristics[0]);
+ 		return;
+ 	}
+ 
+ 	for (i = 3; i <= 5; i++)
+-		if (code.l & (1 << i))
++		if (code & (1ULL << i))
+ 			pr_list_item("%s", characteristics[i - 2]);
+ }
+ 
+@@ -4858,12 +4849,8 @@ static void dmi_decode(const struct dmi_header *h, u16 ver)
+ 			}
+ 			else
+ 			{
+-				u64 capacity;
+-
+-				capacity.h = 0;
+-				capacity.l = DWORD(data + 0x07);
+ 				dmi_print_memory_size("Maximum Capacity",
+-						      capacity, 1);
++						      DWORD(data + 0x07), 1);
+ 			}
+ 			if (!(opt.flags & FLAG_QUIET))
+ 				dmi_memory_array_error_handle(WORD(data + 0x0B));
+@@ -4989,10 +4976,8 @@ static void dmi_decode(const struct dmi_header *h, u16 ver)
+ 				start = QWORD(data + 0x0F);
+ 				end = QWORD(data + 0x17);
+ 
+-				pr_attr("Starting Address", "0x%08X%08X",
+-					start.h, start.l);
+-				pr_attr("Ending Address", "0x%08X%08X",
+-					end.h, end.l);
++				pr_attr("Starting Address", "0x%016llX", start);
++				pr_attr("Ending Address", "0x%016llX", end);
+ 				dmi_mapped_address_extended_size(start, end);
+ 			}
+ 			else
+@@ -5022,10 +5007,8 @@ static void dmi_decode(const struct dmi_header *h, u16 ver)
+ 				start = QWORD(data + 0x13);
+ 				end = QWORD(data + 0x1B);
+ 
+-				pr_attr("Starting Address", "0x%08X%08X",
+-					start.h, start.l);
+-				pr_attr("Ending Address", "0x%08X%08X",
+-					end.h, end.l);
++				pr_attr("Starting Address", "0x%016llX", start);
++				pr_attr("Ending Address", "0x%016llX", end);
+ 				dmi_mapped_address_extended_size(start, end);
+ 			}
+ 			else
+@@ -5947,7 +5930,8 @@ static int smbios3_decode(u8 *buf, size_t buf_len, const char *devmem, u32 flags
+ 			buf[0x07], buf[0x08], buf[0x09]);
+ 
+ 	offset = QWORD(buf + 0x10);
+-	if (!(flags & FLAG_NO_FILE_OFFSET) && offset.h && sizeof(off_t) < 8)
++	if (!(flags & FLAG_NO_FILE_OFFSET) && (offset & 0xFFFFFFFF00000000ULL)
++	 && sizeof(off_t) < 8)
+ 	{
+ 		fprintf(stderr, "64-bit addresses not supported, sorry.\n");
+ 		return 0;
+@@ -5955,7 +5939,7 @@ static int smbios3_decode(u8 *buf, size_t buf_len, const char *devmem, u32 flags
+ 
+ 	/* Maximum length, may get trimmed */
+ 	len = DWORD(buf + 0x0C);
+-	table = dmi_table_get(((off_t)offset.h << 32) | offset.l, &len, 0, ver,
++	table = dmi_table_get(offset, &len, 0, ver,
+ 			      devmem, flags | FLAG_STOP_AT_EOT);
+ 	if (table == NULL)
+ 		return 1;
+diff --git a/dmioem.c b/dmioem.c
+index a276e3f..f218aa4 100644
+--- a/dmioem.c
++++ b/dmioem.c
+@@ -141,7 +141,7 @@ static void dmi_dell_bios_flags(u64 flags)
+ 	/*
+ 	 * TODO: The meaning of the other bits is unknown.
+ 	 */
+-	pr_attr("ACPI WMI Supported", "%s", (flags.l & (1 << 1)) ? "Yes" : "No");
++	pr_attr("ACPI WMI Supported", "%s", (flags & (1ULL << 1)) ? "Yes" : "No");
+ }
+ 
+ static void dmi_dell_hotkeys(const struct dmi_header *h)
+@@ -878,9 +878,9 @@ static void dmi_hp_240_attr(u64 defined, u64 set)
+ 	pr_list_start("Attributes Defined/Set", NULL);
+ 	for (i = 0; i < ARRAY_SIZE(attributes); i++)
+ 	{
+-		if (!(defined.l & (1UL << i)))
++		if (!(defined & (1ULL << i)))
+ 			continue;
+-		pr_list_item("%s: %s", attributes[i], set.l & (1UL << i) ? "Yes" : "No");
++		pr_list_item("%s: %s", attributes[i], set & (1ULL << i) ? "Yes" : "No");
+ 	}
+ 	pr_list_end();
+ }
+@@ -1277,11 +1277,8 @@ static int dmi_decode_hp(const struct dmi_header *h)
+ 			if (DWORD(data + 0x04) == 0x55524324)
+ 			{
+ 				u64 paddr = QWORD(data + 0x08);
+-				paddr.l += DWORD(data + 0x14);
+-				if (paddr.l < DWORD(data + 0x14))
+-					paddr.h++;
+-				pr_attr("Physical Address", "0x%08x%08x",
+-					paddr.h, paddr.l);
++				paddr += DWORD(data + 0x14);
++				pr_attr("Physical Address", "0x%016llx", paddr);
+ 				pr_attr("Length", "0x%08x", DWORD(data + 0x10));
+ 			}
+ 			break;
+diff --git a/types.h b/types.h
+index 51c32d7..62d30c9 100644
+--- a/types.h
++++ b/types.h
+@@ -7,6 +7,7 @@ typedef unsigned char u8;
+ typedef unsigned short u16;
+ typedef signed short i16;
+ typedef unsigned int u32;
++typedef unsigned long long int u64;
+ 
+ /*
+  * You may use the following defines to adjust the type definitions
+@@ -18,30 +19,6 @@ typedef unsigned int u32;
+  *   for architectures which need it.
+  */
+ 
+-#ifdef BIGENDIAN
+-typedef struct {
+-	u32 h;
+-	u32 l;
+-} u64;
+-#else
+-typedef struct {
+-	u32 l;
+-	u32 h;
+-} u64;
+-#endif
+-
+-#if defined(ALIGNMENT_WORKAROUND) || defined(BIGENDIAN)
+-static inline u64 U64(u32 low, u32 high)
+-{
+-	u64 self;
+-
+-	self.l = low;
+-	self.h = high;
+-
+-	return self;
+-}
+-#endif
+-
+ /*
+  * Per SMBIOS v2.8.0 and later, all structures assume a little-endian
+  * ordering convention.
+@@ -49,11 +26,11 @@ static inline u64 U64(u32 low, u32 high)
+ #if defined(ALIGNMENT_WORKAROUND) || defined(BIGENDIAN)
+ #define WORD(x) (u16)((x)[0] + ((x)[1] << 8))
+ #define DWORD(x) (u32)((x)[0] + ((x)[1] << 8) + ((x)[2] << 16) + ((x)[3] << 24))
+-#define QWORD(x) (U64(DWORD(x), DWORD(x + 4)))
++#define QWORD(x) (((u64)DWORD((x) + 4) << 32) + DWORD(x))
+ #else /* ALIGNMENT_WORKAROUND || BIGENDIAN */
+ #define WORD(x) (u16)(*(const u16 *)(x))
+ #define DWORD(x) (u32)(*(const u32 *)(x))
+-#define QWORD(x) (*(const u64 *)(x))
++#define QWORD(x) (u64)(*(const u64 *)(x))
+ #endif /* ALIGNMENT_WORKAROUND || BIGENDIAN */
+ 
+ #endif
+diff --git a/util.c b/util.c
+index dce84ff..3f09ec5 100644
+--- a/util.c
++++ b/util.c
+@@ -265,15 +265,5 @@ void *mem_chunk(off_t base, size_t len, const char *devmem)
+ /* Returns end - start + 1, assuming start < end */
+ u64 u64_range(u64 start, u64 end)
+ {
+-	u64 res;
+-
+-	res.h = end.h - start.h;
+-	res.l = end.l - start.l;
+-
+-	if (end.l < start.l)
+-		res.h--;
+-	if (++res.l == 0)
+-		res.h++;
+-
+-	return res;
++	return end - start + 1;
+ }
+-- 
+2.47.0
+

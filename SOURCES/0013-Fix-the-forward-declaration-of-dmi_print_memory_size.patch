@@ -1,0 +1,26 @@
+From 3d064ec6fe09b9febd01d044d05e30350361edff Mon Sep 17 00:00:00 2001
+From: Jean Delvare <jdelvare@suse.de>
+Date: Sun, 13 Apr 2025 16:52:17 +0200
+Subject: [PATCH 13/45] Fix the forward declaration of dmi_print_memory_size()
+
+Use the same parameter names as the function itself.
+---
+ dmidecode.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/dmidecode.h b/dmidecode.h
+index b634b55..3b895f9 100644
+--- a/dmidecode.h
++++ b/dmidecode.h
+@@ -49,7 +49,7 @@ extern enum cpuid_type cpuid_type;
+ 
+ int is_printable(const u8 *data, int len);
+ const char *dmi_string(const struct dmi_header *dm, u8 s);
+-void dmi_print_memory_size(const char *addr, u64 code, int shift);
++void dmi_print_memory_size(const char *attr, u64 code, int shift);
+ void dmi_print_cpuid(void (*print_cb)(const char *name, const char *format, ...),
+ 		     const char *label, enum cpuid_type sig, const u8 *p);
+ 
+-- 
+2.47.0
+

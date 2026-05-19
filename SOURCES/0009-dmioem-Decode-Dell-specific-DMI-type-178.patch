@@ -1,0 +1,59 @@
+From c72b8f187e740d5142d53bbb4f654156ce1a3d17 Mon Sep 17 00:00:00 2001
+From: Armin Wolf <W_Armin@gmx.de>
+Date: Wed, 16 Oct 2024 10:51:57 +0200
+Subject: [PATCH 09/45] dmioem: Decode Dell-specific DMI type 178
+
+OEM DMI type 178 is used by the dell-wmi-base driver to translate
+WMI event scancodes into hotkey events. Include the available
+information in the output of dmidecode.
+
+Signed-off-by: Armin Wolf <W_Armin@gmx.de>
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+---
+ dmioem.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
+
+diff --git a/dmioem.c b/dmioem.c
+index 964f287..1df77ec 100644
+--- a/dmioem.c
++++ b/dmioem.c
+@@ -144,6 +144,24 @@ static void dmi_dell_bios_flags(u64 flags)
+ 	pr_attr("ACPI WMI Supported", "%s", (flags.l & (1 << 1)) ? "Yes" : "No");
+ }
+ 
++static void dmi_dell_hotkeys(const struct dmi_header *h)
++{
++	int count = (h->length - 0x04) / 0x04;
++	u8 *hotkey = h->data + 0x04;
++
++	if (!count)
++		return;
++
++	pr_list_start("Hotkey Mappings", NULL);
++	for (int i = 0; i < count; i++)
++	{
++		pr_list_item("Scancode 0x%04hx -> Keycode 0x%04hx",
++			     WORD(hotkey + 0x00), WORD(hotkey + 0x02));
++		hotkey += 0x04;
++	}
++	pr_list_end();
++}
++
+ static void dmi_dell_indexed_io_access(const struct dmi_header *h)
+ {
+ 	static const char *checksum_types[] = {
+@@ -225,6 +243,11 @@ static int dmi_decode_dell(const struct dmi_header *h)
+ 			dmi_dell_bios_flags(QWORD(data + 0x04));
+ 			break;
+ 
++		case 178:
++			pr_handle_name("Dell Hotkeys");
++			dmi_dell_hotkeys(h);
++			break;
++
+ 		case 212:
+ 			pr_handle_name("Dell Indexed I/O Access");
+ 			if (h->length < 0x0C) break;
+-- 
+2.47.0
+

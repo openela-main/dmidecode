@@ -1,0 +1,26 @@
+From 525113bc79ad48bd7b20d9b983efbd226d1aac11 Mon Sep 17 00:00:00 2001
+From: Soren Stoutner <soren@debian.org>
+Date: Thu, 13 Feb 2025 17:05:23 +0100
+Subject: [PATCH 12/45] dmidecode.8: Fix groff error
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Thanks to Jörg Frings-Fürst for forwarding this fix.
+---
+ man/dmidecode.8 | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/man/dmidecode.8 b/man/dmidecode.8
+index 77c89a5..6636b72 100644
+--- a/man/dmidecode.8
++++ b/man/dmidecode.8
+@@ -1,3 +1,5 @@
++'\" t
++.\" ** The above line should force tbl to be a preprocessor **
+ .TH DMIDECODE 8 "February 2023" "dmidecode"
+ .\"
+ .SH NAME
+-- 
+2.47.0
+

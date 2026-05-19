@@ -1,0 +1,56 @@
+From fcc75f94405a965090bb1882178c1930750b7c3d Mon Sep 17 00:00:00 2001
+From: Jerry Hoemann <jerry.hoemann@hpe.com>
+Date: Tue, 15 Apr 2025 11:03:33 +0200
+Subject: [PATCH 17/45] dmioem: Update HPE OEM Type 216
+
+Update Enumerated Firmware Types.
+Update Enumerated Version Data Format.
+
+Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+---
+ dmioem.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
+
+diff --git a/dmioem.c b/dmioem.c
+index d73c2ec..d4a49ae 100644
+--- a/dmioem.c
++++ b/dmioem.c
+@@ -470,8 +470,8 @@ static void dmi_hp_216_fw_type(u16 code)
+ 		"SPI Descriptor Version",
+ 		"Innovation Engine Firmware (IE Firmware)",
+ 		"UMB Backplane Firmware",
+-		"Reserved", /* 0x14 */
+-		"Reserved",
++		"Embedded Diagnostics",
++		"Reserved", /* 0x15 */
+ 		"Reserved",
+ 		"Reserved",
+ 		"Reserved",
+@@ -514,6 +514,10 @@ static void dmi_hp_216_fw_type(u16 code)
+ 		"Power Distribution Board CPLD",
+ 		"PCIe Switch Board CPLD",
+ 		"Sideband Board CPLD",
++		"PCIe Riser MCU Firmware", /* 0x40 */
++		"PCIe Switch Board Firmware",
++		"Power Supply Firmware",
++		"BMC Firmware",
+ 	};
+ 
+ 	if (code < ARRAY_SIZE(type))
+@@ -600,6 +604,12 @@ static void dmi_hp_216_version(u8 format, u8 *data)
+ 	case 18:
+ 		pr_attr(name, "%d.%02d", data[0], data[1]);
+ 		break;
++	case 19:
++		pr_attr(name, "0x%02x.0x%02x.0x%02x", data[0], data[1], data[2]);
++		break;
++	case 20:
++		pr_attr(name, "%d.%d.%d.%d", data[0], data[1], data[2], data[3]);
++		break;
+ 	case 3: /* fall through */
+ 	default:
+ 		pr_attr(name, "%s", reserved);
+-- 
+2.47.0
+

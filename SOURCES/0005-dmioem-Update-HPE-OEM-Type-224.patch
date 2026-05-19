@@ -1,0 +1,28 @@
+From 2afb0fcb568a7078b35b2d115af1277300959521 Mon Sep 17 00:00:00 2001
+From: Jerry Hoemann <jerry.hoemann@hpe.com>
+Date: Fri, 5 Jul 2024 14:39:54 +0200
+Subject: [PATCH 05/45] dmioem: Update HPE OEM Type 224
+
+Update chip identifier.
+
+Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+---
+ dmioem.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/dmioem.c b/dmioem.c
+index c8f4a50..d35ccb6 100644
+--- a/dmioem.c
++++ b/dmioem.c
+@@ -613,6 +613,7 @@ static void dmi_hp_224_chipid(u16 code)
+ 		"Nationz TPM",
+ 		"STMicroGen10 Plus TPM",
+ 		"STMicroGen11 TPM", /* 0x05 */
++		"STMicroGen12 TPM",
+ 	};
+ 	if ((code & 0xff) < ARRAY_SIZE(chipid))
+ 		str = chipid[code & 0xff];
+-- 
+2.47.0
+

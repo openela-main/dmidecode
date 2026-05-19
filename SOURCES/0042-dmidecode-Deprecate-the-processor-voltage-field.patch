@@ -1,0 +1,34 @@
+From 21ddcb40b507a1e35ab5ee2e0121768d9d02c836 Mon Sep 17 00:00:00 2001
+From: Jean Delvare <jdelvare@suse.de>
+Date: Tue, 23 Sep 2025 13:42:23 +0200
+Subject: [PATCH 42/45] dmidecode: Deprecate the processor voltage field
+
+Since SMBIOS specification version 3.8.0, the processor voltage field
+is deprecated, so don't print it if not set.
+
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+---
+ dmidecode.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/dmidecode.c b/dmidecode.c
+index a6cd97e..03ba201 100644
+--- a/dmidecode.c
++++ b/dmidecode.c
+@@ -4615,7 +4615,12 @@ static void dmi_decode(const struct dmi_header *h, u16 ver)
+ 			dmi_processor_id(h);
+ 			pr_attr("Version", "%s",
+ 				dmi_string(h, data[0x10]));
+-			dmi_processor_voltage("Voltage", data[0x11]);
++			/*
++			 * Since SMBIOS 3.8.0, the processor voltage field
++			 * is deprecated, so ignore it if no value is set.
++			 */
++			if (data[0x11])
++				dmi_processor_voltage("Voltage", data[0x11]);
+ 			dmi_processor_frequency("External Clock", data + 0x12);
+ 			dmi_processor_frequency("Max Speed", data + 0x14);
+ 			dmi_processor_frequency("Current Speed", data + 0x16);
+-- 
+2.47.0
+

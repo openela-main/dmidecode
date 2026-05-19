@@ -1,0 +1,30 @@
+From 6ef4bf27fcf0904ab1e5cebbe427e0afa50f6a90 Mon Sep 17 00:00:00 2001
+From: Jerry Hoemann <jerry.hoemann@hpe.com>
+Date: Fri, 5 Jul 2024 14:39:49 +0200
+Subject: [PATCH 04/45] dmioem: Update HPE OEM Type 203
+
+Update device type.
+
+Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+---
+ dmioem.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/dmioem.c b/dmioem.c
+index 62fe10e..c8f4a50 100644
+--- a/dmioem.c
++++ b/dmioem.c
+@@ -328,7 +328,8 @@ static void dmi_hp_203_devtyp(const char *fname, unsigned int code)
+ 		"Dynamic Smart Array Controller",
+ 		"File",
+ 		"NVME Hard Drive",
+-		"NVDIMM" /* 0x11 */
++		"NVDIMM", /* 0x11 */
++		"Embedded GPU"
+ 	};
+ 
+ 	if (code < ARRAY_SIZE(type))
+-- 
+2.47.0
+

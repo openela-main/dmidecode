@@ -1,0 +1,29 @@
+From 70c99ec5c133e78e6239f4c34a8c71687e18f492 Mon Sep 17 00:00:00 2001
+From: Jean Delvare <jdelvare@suse.de>
+Date: Tue, 23 Sep 2025 13:42:34 +0200
+Subject: [PATCH 44/45] dmidecode: Mark SMBIOS 3.8.0 as supported
+
+All changes mentioned in the SMBIOS 3.8.0 specification update are
+implemented now, so mark this version as supported.
+
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+---
+ dmidecode.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/dmidecode.c b/dmidecode.c
+index a9685a1..0d3d825 100644
+--- a/dmidecode.c
++++ b/dmidecode.c
+@@ -89,7 +89,7 @@ static const char *bad_index = "<BAD INDEX>";
+ 
+ enum cpuid_type cpuid_type = cpuid_none;
+ 
+-#define SUPPORTED_SMBIOS_VER 0x030701
++#define SUPPORTED_SMBIOS_VER 0x030800
+ 
+ #define FLAG_NO_FILE_OFFSET     (1 << 0)
+ #define FLAG_STOP_AT_EOT        (1 << 1)
+-- 
+2.47.0
+

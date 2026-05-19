@@ -1,0 +1,48 @@
+From f88fa53600db3e2555d1aa289f343ba47d790c88 Mon Sep 17 00:00:00 2001
+From: Jean Delvare <jdelvare@suse.de>
+Date: Thu, 24 Apr 2025 11:41:47 +0200
+Subject: [PATCH 22/45] Fix unit of starting and ending addresses
+
+The Extended Starting Address and Extended Ending Address fields of
+DMI types 19 (Memory Array Mapped Address) and 20 (Memory Device
+Mapped Address) are stored in byte unit, unlike their non-extended
+counterparts which were expressed in kibibytes. The trailing "k"
+after these addresses therefore makes no sense and should be removed.
+
+Fixes: 7f899da5e459 ("Add support for memory arrays of 2 TB and more")
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+---
+ dmidecode.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/dmidecode.c b/dmidecode.c
+index 11f69a6..882e480 100644
+--- a/dmidecode.c
++++ b/dmidecode.c
+@@ -4989,9 +4989,9 @@ static void dmi_decode(const struct dmi_header *h, u16 ver)
+ 				start = QWORD(data + 0x0F);
+ 				end = QWORD(data + 0x17);
+ 
+-				pr_attr("Starting Address", "0x%08X%08Xk",
++				pr_attr("Starting Address", "0x%08X%08X",
+ 					start.h, start.l);
+-				pr_attr("Ending Address", "0x%08X%08Xk",
++				pr_attr("Ending Address", "0x%08X%08X",
+ 					end.h, end.l);
+ 				dmi_mapped_address_extended_size(start, end);
+ 			}
+@@ -5022,9 +5022,9 @@ static void dmi_decode(const struct dmi_header *h, u16 ver)
+ 				start = QWORD(data + 0x13);
+ 				end = QWORD(data + 0x1B);
+ 
+-				pr_attr("Starting Address", "0x%08X%08Xk",
++				pr_attr("Starting Address", "0x%08X%08X",
+ 					start.h, start.l);
+-				pr_attr("Ending Address", "0x%08X%08Xk",
++				pr_attr("Ending Address", "0x%08X%08X",
+ 					end.h, end.l);
+ 				dmi_mapped_address_extended_size(start, end);
+ 			}
+-- 
+2.47.0
+

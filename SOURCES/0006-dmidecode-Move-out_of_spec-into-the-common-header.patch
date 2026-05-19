@@ -1,0 +1,47 @@
+From d5af407ae937b0ab26b72e8c250112d5a8543a63 Mon Sep 17 00:00:00 2001
+From: Armin Wolf <W_Armin@gmx.de>
+Date: Fri, 26 Jul 2024 10:56:00 +0200
+Subject: [PATCH 06/45] dmidecode: Move out_of_spec into the common header
+
+Other components like dmioem might also encounter situations where
+they encounter invalid values. In such cases, using a standard string
+for displaying invalid values is needed.
+
+Move out_of_spec into the common header file so other components like
+dmioem can use it.
+
+Signed-off-by: Armin Wolf <W_Armin@gmx.de>
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+---
+ dmidecode.c | 1 -
+ dmidecode.h | 2 ++
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/dmidecode.c b/dmidecode.c
+index 45a6c06..547cb48 100644
+--- a/dmidecode.c
++++ b/dmidecode.c
+@@ -85,7 +85,6 @@
+ #include "dmioem.h"
+ #include "dmioutput.h"
+ 
+-#define out_of_spec "<OUT OF SPEC>"
+ static const char *bad_index = "<BAD INDEX>";
+ 
+ enum cpuid_type cpuid_type = cpuid_none;
+diff --git a/dmidecode.h b/dmidecode.h
+index e03c957..b634b55 100644
+--- a/dmidecode.h
++++ b/dmidecode.h
+@@ -23,6 +23,8 @@
+ 
+ #include "types.h"
+ 
++#define out_of_spec "<OUT OF SPEC>"
++
+ struct dmi_header
+ {
+ 	u8 type;
+-- 
+2.47.0
+

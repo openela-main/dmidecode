@@ -1,0 +1,53 @@
+From 79069e674eb454db759bc51e096f3b8054e23220 Mon Sep 17 00:00:00 2001
+From: Jerry Hoemann <jerry.hoemann@hpe.com>
+Date: Thu, 12 Jun 2025 11:15:54 +0200
+Subject: [PATCH 33/45] dmidecode: Expose memory utility functions
+
+Expose utility functions for use in dmioem:
+	dmi_memory_manufacturer_id()
+	dmi_memory_product_id()
+
+Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+---
+ dmidecode.c | 4 ++--
+ dmidecode.h | 2 ++
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/dmidecode.c b/dmidecode.c
+index 92ee078..5709e8a 100644
+--- a/dmidecode.c
++++ b/dmidecode.c
+@@ -3001,7 +3001,7 @@ static void dmi_memory_operating_mode_capability(u16 code)
+ 	}
+ }
+ 
+-static void dmi_memory_manufacturer_id(const char *attr, u16 code)
++void dmi_memory_manufacturer_id(const char *attr, u16 code)
+ {
+ 	/* 7.18.8 */
+ 	/* 7.18.10 */
+@@ -3015,7 +3015,7 @@ static void dmi_memory_manufacturer_id(const char *attr, u16 code)
+ 			(code & 0x7F) + 1, code >> 8);
+ }
+ 
+-static void dmi_memory_product_id(const char *attr, u16 code)
++void dmi_memory_product_id(const char *attr, u16 code)
+ {
+ 	/* 7.18.9 */
+ 	/* 7.18.11 */
+diff --git a/dmidecode.h b/dmidecode.h
+index f7ac319..db120dd 100644
+--- a/dmidecode.h
++++ b/dmidecode.h
+@@ -53,5 +53,7 @@ void dmi_print_memory_size(const char *attr, u64 code, int shift);
+ void dmi_print_storage_size(const char *attr, u64 code, unsigned int shift);
+ void dmi_print_cpuid(void (*print_cb)(const char *name, const char *format, ...),
+ 		     const char *label, enum cpuid_type sig, const u8 *p);
++void dmi_memory_manufacturer_id(const char *attr, u16 code);
++void dmi_memory_product_id(const char *attr, u16 code);
+ 
+ #endif
+-- 
+2.47.0
+

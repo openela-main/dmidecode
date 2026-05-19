@@ -1,0 +1,26 @@
+From d3b45cc04f4a771bb11799ba83b29307575d2176 Mon Sep 17 00:00:00 2001
+From: Jean Delvare <jdelvare@suse.de>
+Date: Thu, 24 Apr 2025 11:48:41 +0200
+Subject: [PATCH 25/45] biosdecode: Update copyright year to 2025
+
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+---
+ biosdecode.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/biosdecode.c b/biosdecode.c
+index fb393da..c387276 100644
+--- a/biosdecode.c
++++ b/biosdecode.c
+@@ -2,7 +2,7 @@
+  * BIOS Decode
+  *
+  *   Copyright (C) 2000-2002 Alan Cox <alan@redhat.com>
+- *   Copyright (C) 2002-2017 Jean Delvare <jdelvare@suse.de>
++ *   Copyright (C) 2002-2025 Jean Delvare <jdelvare@suse.de>
+  *
+  *   This program is free software; you can redistribute it and/or modify
+  *   it under the terms of the GNU General Public License as published by
+-- 
+2.47.0
+

@@ -1,0 +1,30 @@
+From 0741131774c597515958c39168c3bc0a8395e4d9 Mon Sep 17 00:00:00 2001
+From: Jerry Hoemann <jerry.hoemann@hpe.com>
+Date: Tue, 15 Apr 2025 11:02:56 +0200
+Subject: [PATCH 16/45] dmioem: Correct HPE OEM Type 216 format 18
+
+Format 18 should be in dollar/cents dotation.
+
+Fixes: 9d2bbd5db427b063da ("dmioem: Decode HPE OEM Record 216")
+Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+---
+ dmioem.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/dmioem.c b/dmioem.c
+index 036e285..d73c2ec 100644
+--- a/dmioem.c
++++ b/dmioem.c
+@@ -598,7 +598,7 @@ static void dmi_hp_216_version(u8 format, u8 *data)
+ 		pr_attr(name, "%08X", DWORD(data));
+ 		break;
+ 	case 18:
+-		pr_attr(name, "%d.%2d", data[0], data[1]);
++		pr_attr(name, "%d.%02d", data[0], data[1]);
+ 		break;
+ 	case 3: /* fall through */
+ 	default:
+-- 
+2.47.0
+

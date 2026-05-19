@@ -1,0 +1,86 @@
+From 16decc37976f283460f4174dfdb6c6adb7cb3f04 Mon Sep 17 00:00:00 2001
+From: Jean Delvare <jdelvare@suse.de>
+Date: Mon, 12 May 2025 17:50:32 +0200
+Subject: [PATCH 27/45] dmioem: Display drive capacity in power-of-10 units
+
+HPE OEM type 242 displays the drive capacity using a function
+initially designed to display memory sizes. While memory sizes are
+traditionally expressed using power-of-2 units (KiB, MiB, GiB...),
+the computer storage industry still uses power-of-10 units (kB, MB,
+GB...) to express a drive's capacity.
+
+Implement a new function displaying capacities using power-of-10
+units and use it to display the drive capacity. That way, the number
+displayed will match the expectations and hardware documentation.
+
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+---
+ dmidecode.c | 22 ++++++++++++++++++++++
+ dmidecode.h |  1 +
+ dmioem.c    |  4 ++--
+ 3 files changed, 25 insertions(+), 2 deletions(-)
+
+diff --git a/dmidecode.c b/dmidecode.c
+index c52f975..6a14f99 100644
+--- a/dmidecode.c
++++ b/dmidecode.c
+@@ -317,6 +317,28 @@ void dmi_print_memory_size(const char *attr, u64 code, int shift)
+ 	pr_attr(attr, "%lu %s", capacity, unit[i + shift]);
+ }
+ 
++/* shift is 0 if the value is in bytes, 1 if it is in kB, 2 if it is in MB */
++void dmi_print_storage_size(const char *attr, u64 code, unsigned int shift)
++{
++	u64 div;
++	static const char *unit[8] = {
++		"bytes", "kB", "MB", "GB", "TB", "PB", "EB", "ZB"
++	};
++
++	/*
++	 * We want to choose the unit which will let us display a number
++	 * between 1.0 and 999.9.
++	 */
++	div = 1;
++	while (code / div >= 1000 && shift + 1 < ARRAY_SIZE(unit))
++	{
++		shift++;
++		div *= 1000;
++	}
++
++	pr_attr(attr, "%.1f %s", (float)code / div, unit[shift]);
++}
++
+ /*
+  * 7.1 BIOS Information (Type 0)
+  */
+diff --git a/dmidecode.h b/dmidecode.h
+index 96ffe1a..f7ac319 100644
+--- a/dmidecode.h
++++ b/dmidecode.h
+@@ -50,6 +50,7 @@ extern enum cpuid_type cpuid_type;
+ int is_printable(const u8 *data, int len);
+ const char *dmi_string(const struct dmi_header *dm, u8 s);
+ void dmi_print_memory_size(const char *attr, u64 code, int shift);
++void dmi_print_storage_size(const char *attr, u64 code, unsigned int shift);
+ void dmi_print_cpuid(void (*print_cb)(const char *name, const char *format, ...),
+ 		     const char *label, enum cpuid_type sig, const u8 *p);
+ 
+diff --git a/dmioem.c b/dmioem.c
+index d08ae69..c67b694 100644
+--- a/dmioem.c
++++ b/dmioem.c
+@@ -1679,9 +1679,9 @@ static int dmi_decode_hp(const struct dmi_header *h)
+ 			dmi_hp_242_hdd_type(data[0x06]);
+ 			pr_attr("ID", "%llx", QWORD(data + 0x07));
+ 			if (h->length < 0x3E)
+-				pr_attr("Capacity", "%u MB", DWORD(data + 0x0F));
++				dmi_print_storage_size("Capacity", DWORD(data + 0x0F), 2);
+ 			else
+-				dmi_print_memory_size("Capacity", QWORD(data + 0x2C), 0);
++				dmi_print_storage_size("Capacity", QWORD(data + 0x2C), 0);
+ 			/* NB: Poweron low QWORD good for 2,104,351,365,926,255 years */
+ 			pr_attr("Poweron", "%ld hours", QWORD(data + 0x13));
+ 			if (data[0x24])
+-- 
+2.47.0
+

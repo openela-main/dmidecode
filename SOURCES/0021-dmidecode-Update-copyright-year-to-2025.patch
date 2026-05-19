@@ -1,0 +1,56 @@
+From 6524a59ab8d519f1496e913dadf56669756bff33 Mon Sep 17 00:00:00 2001
+From: Jean Delvare <jdelvare@suse.de>
+Date: Thu, 24 Apr 2025 10:23:54 +0200
+Subject: [PATCH 21/45] dmidecode: Update copyright year to 2025
+
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+---
+ dmidecode.c | 2 +-
+ dmidecode.h | 2 +-
+ dmioem.c    | 4 ++--
+ 3 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/dmidecode.c b/dmidecode.c
+index fd20208..11f69a6 100644
+--- a/dmidecode.c
++++ b/dmidecode.c
+@@ -2,7 +2,7 @@
+  * DMI Decode
+  *
+  *   Copyright (C) 2000-2002 Alan Cox <alan@redhat.com>
+- *   Copyright (C) 2002-2024 Jean Delvare <jdelvare@suse.de>
++ *   Copyright (C) 2002-2025 Jean Delvare <jdelvare@suse.de>
+  *
+  *   This program is free software; you can redistribute it and/or modify
+  *   it under the terms of the GNU General Public License as published by
+diff --git a/dmidecode.h b/dmidecode.h
+index 3b895f9..96ffe1a 100644
+--- a/dmidecode.h
++++ b/dmidecode.h
+@@ -1,7 +1,7 @@
+ /*
+  * This file is part of the dmidecode project.
+  *
+- *   Copyright (C) 2005-2023 Jean Delvare <jdelvare@suse.de>
++ *   Copyright (C) 2005-2025 Jean Delvare <jdelvare@suse.de>
+  *
+  *   This program is free software; you can redistribute it and/or modify
+  *   it under the terms of the GNU General Public License as published by
+diff --git a/dmioem.c b/dmioem.c
+index 4e02d29..a276e3f 100644
+--- a/dmioem.c
++++ b/dmioem.c
+@@ -2,8 +2,8 @@
+  * Decoding of OEM-specific entries
+  * This file is part of the dmidecode project.
+  *
+- *   Copyright (C) 2007-2024 Jean Delvare <jdelvare@suse.de>
+- *   Copyright (C) 2017-2024 Jerry Hoemann <jerry.hoemann@hpe.com>
++ *   Copyright (C) 2007-2025 Jean Delvare <jdelvare@suse.de>
++ *   Copyright (C) 2017-2025 Jerry Hoemann <jerry.hoemann@hpe.com>
+  *
+  *   This program is free software; you can redistribute it and/or modify
+  *   it under the terms of the GNU General Public License as published by
+-- 
+2.47.0
+

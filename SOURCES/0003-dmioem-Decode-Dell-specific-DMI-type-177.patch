@@ -1,0 +1,54 @@
+From c86cb489d3b5cb1ea371546f4ca9a485f4c2bee6 Mon Sep 17 00:00:00 2001
+From: Armin Wolf <W_Armin@gmx.de>
+Date: Fri, 5 Jul 2024 14:30:11 +0200
+Subject: [PATCH 03/45] dmioem: Decode Dell-specific DMI type 177
+
+OEM DMI type 177 contains various BIOS flags used by the
+dell-wmi-descriptor driver. Include the available information in the
+output of dmidecode.
+
+Signed-off-by: Armin Wolf <W_Armin@gmx.de>
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+---
+ dmioem.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/dmioem.c b/dmioem.c
+index b6b0f49..62fe10e 100644
+--- a/dmioem.c
++++ b/dmioem.c
+@@ -136,6 +136,14 @@ static int dmi_decode_acer(const struct dmi_header *h)
+  * Dell-specific data structures are decoded here.
+  */
+ 
++static void dmi_dell_bios_flags(u64 flags)
++{
++	/*
++	 * TODO: The meaning of the other bits is unknown.
++	 */
++	pr_attr("ACPI WMI Supported", "%s", (flags.l & (1 << 1)) ? "Yes" : "No");
++}
++
+ static void dmi_dell_token_interface(const struct dmi_header *h)
+ {
+ 	int tokens = (h->length - 0x0B) / 0x06;
+@@ -165,8 +173,16 @@ static void dmi_dell_token_interface(const struct dmi_header *h)
+ 
+ static int dmi_decode_dell(const struct dmi_header *h)
+ {
++	u8 *data = h->data;
++
+ 	switch (h->type)
+ 	{
++		case 177:
++			pr_handle_name("Dell BIOS Flags");
++			if (h->length < 0x0C) break;
++			dmi_dell_bios_flags(QWORD(data + 0x04));
++			break;
++
+ 		case 218:
+ 			pr_handle_name("Dell Token Interface");
+ 			if (h->length < 0x0B) break;
+-- 
+2.47.0
+
